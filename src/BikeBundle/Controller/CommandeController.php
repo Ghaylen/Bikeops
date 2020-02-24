@@ -5,6 +5,7 @@ namespace BikeBundle\Controller;
 use BikeBundle\Entity\Commande;
 use BikeBundle\Entity\CommandeProduit;
 use BikeBundle\Entity\LineItem;
+use BikeBundle\Entity\Livraison;
 use BikeBundle\Entity\Panier;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Swift_Image;
@@ -35,9 +36,10 @@ class CommandeController extends Controller
     public function precommandeAction($panier)
     {
         $em = $this->getDoctrine()->getManager();
+        $panierObj = $em->getRepository(Panier::class)->find($panier);
 
-
-        return $this->render('commande/precommande.html.twig', array('panier_data' => $panier));
+        return $this->render('commande/precommande.html.twig', array('panier_data' => $panier,
+            'panierObj' => $panierObj));
     }
 
     /* Add Commande */
@@ -49,6 +51,16 @@ class CommandeController extends Controller
         $panierObj = $em->getRepository(Panier::class)->find($panier);
 
         $type_paiement = $request->query->get('paiement');
+        $type_livraison= $request->query->get('livraison');
+
+        /* @var Livraison $livraison*/
+        $livraison = new Livraison();
+        $livraison->setType($type_livraison);
+        $livraison->setUtilisateur($user);
+        $livraison->setAdresse($user->getAddresse());
+        $livraison->setEtat(0);
+        $em->persist($livraison);
+        $em->flush();
 
         /* @var Commande $commande */
         $commande = new Commande();
@@ -57,9 +69,12 @@ class CommandeController extends Controller
         $commande->setDate(new \DateTime());
         $commande->setEtat('en_attente');
         $commande->setTypePaiment($type_paiement);
+        $commande->setLivraison($livraison);
 
         $em->persist($commande);
         $em->flush();
+
+        $livraison->setCommande($commande);
 
         /* Up to here, we added a commande **/
 

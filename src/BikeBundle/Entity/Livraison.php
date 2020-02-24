@@ -72,7 +72,7 @@ class Livraison
 
     /**
      * @ORM\ManyToOne(targetEntity="Livreur")
-     * @ORM\JoinColumn(name="livreurId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="livreurId", referencedColumnName="id",  nullable=true)
      */
     private $livreurId;
 
@@ -91,6 +91,30 @@ class Livraison
     {
         $this->livreurId = $livreurId;
     }
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="type", type="string", length=255)
+     */
+    private $type;
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
 
     /**
      * Get id
